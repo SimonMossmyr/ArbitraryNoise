@@ -4,10 +4,9 @@ import java.util.ArrayList;
  * Simple testing class for the Noise class.
  *
  * @author Simon Mossmyr
- * 
+ * @version	June 2017
  */
 public class Main{
-
 	public static void main(String[] args) {
 		Noise noise = new Noise(8);
 
