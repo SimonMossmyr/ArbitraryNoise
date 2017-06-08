@@ -5,55 +5,72 @@ import java.util.BitSet;
 
 /**
  * Perlin's unmodified 1985 algorithm to arbitrary dimensions.
- * The complexity of the algorithm is O(2^n), so for higher dimensions this program is incredibly slow.
+ * The complexity of the algorithm is O(2^n), so for higher dimensions it is incredibly slow.
  *
- * @author Simon Mossmyr
+ * @author 	Simon Mossmyr
+ * @version	June 2017
+ * @see		<a href="https://github.com/SimonMossmyr/ArbitraryNoise">GitHub repository		</a>
+ * @see		<a href="http://doi.acm.org/10.1145/325165.325247"		>An Image Synthesizer	</a> (Perlin, 1985). DOI: 10.1145/325165.325247
  */
 public class Noise {
 
 	// Constant variables.
-	private final static 	int 	DEFAULT_GRADIENT_LIST_SIZE 				= 256;	
-	private final static 	int 	DEFAULT_PERMUTATION_LIST_SIZE 			= 256;	
-	private final static	int 	DEFAULT_DIMENSION						= 3;
-	private final 			String 	INVALID_POINT_DIMENSION_ERROR_MESSAGE 	= "Input point and Noise object are of different dimensions.";
-	private final 			String 	INVALID_DIMENSION_ERROR_MESSAGE 		= "Dimension must be greater than 0.";
+	private	static	final	int 	DEFAULT_GRADIENT_LIST_SIZE 				= 256;	
+	private	static	final	int 	DEFAULT_INDEX_LIST_SIZE 				= 256;	
+	private	static	final	int 	DEFAULT_DIMENSION						= 3;
+	private			final	String 	INVALID_POINT_DIMENSION_ERROR_MESSAGE 	= "Size of input differs from dimension of Noise object.";
+	private			final	String 	INVALID_DIMENSION_ERROR_MESSAGE 		= "Dimension must be greater than 0.";
 
 	// Global variables.
 	private ArrayList<ArrayList<Double>>	gradientList;
-	private ArrayList<Integer> 				permutationList;
+	private ArrayList<Integer> 				indexList;
 	private int 							dimension;
 
 	/**
-	 * Default constructor.
+	 * Default class constructor.
 	 */
 	public Noise() {
 		this(DEFAULT_DIMENSION);
 	}
 
 	/**
-	 * Constructor with variable dimension.
+	 * Class constructor specifying what dimension to use.
+	 *
+	 * @param	dimension 	The dimension to evaluate the noise values in.
+	 *						Defaults to {@value Noise#DEFAULT_DIMENSION}
 	 */
 	public Noise(int dimension) {
-		this(dimension, DEFAULT_GRADIENT_LIST_SIZE, DEFAULT_PERMUTATION_LIST_SIZE);
+		this(dimension, DEFAULT_GRADIENT_LIST_SIZE, DEFAULT_INDEX_LIST_SIZE);
 	}
 
 	/**
-	 * Super constructor with variable dimension, gradient- and permutation list size.
+	 * Class constructor specifying what dimension, gradient- and permutation list size to use.
+	 *
+	 * @param		dimension 			The dimension to evaluate the noise values in.
+	 *									Defaults to {@value #DEFAULT_DIMENSION} in the other constructors.
+	 * @param 		gradientListSize 	Size of the gradient list used when assigning gradients to the verticies of the surrounding n-hypercube.
+	 *									Defaults to {@value #DEFAULT_GRADIENT_LIST_SIZE} in the other constructors.
+	 * @param 		indexListSize		Size of the index list used when assigning gradients to the verticies of the surrounding n-hypercube.
+	 *									Defaults to {@value #DEFAULT_INDEX_LIST_SIZE} in the other constructors.
+	 * @exception	RuntimeException	If the dimension is less than 1
 	 */
-	public Noise(int dimension, int gradientListSize, int permutationListSize) throws RuntimeException {
+	public Noise(int dimension, int gradientListSize, int indexListSize) throws RuntimeException {
 		if (dimension < 1) {
 			throw new RuntimeException(INVALID_DIMENSION_ERROR_MESSAGE);
 		}
 
 		this.dimension = dimension;
-		gradientList = generateGradientList(dimension, gradientListSize);
-		permutationList = generatePermutationList(permutationListSize);
+		gradientList = generateGradientList(gradientListSize);
+		indexList = generateIndexList(indexListSize);
 	}
 
 	/**
-	 * Generate a list of normal n-vectors, uniformly distributed on the surface of a n-hypersphere.
+	 * Generate a list of normalized n-vectors uniformly distributed on the surface of a n-hypersphere.
+	 *
+	 * @param	size	Size of the list.
+	 * @return			A list of normalized n-vectors uniformly distributed on the surface of a n-hypersphere.
 	 */
-	private ArrayList<ArrayList<Double>> generateGradientList(int dimension, int size) {
+	private ArrayList<ArrayList<Double>> generateGradientList(int size) {
 
 		ArrayList<ArrayList<Double>> gradientList = new ArrayList<>();
 		Random random = new Random();
@@ -87,31 +104,35 @@ public class Noise {
 
 	/**
 	 * Generate a permutation of the list of indices in the gradient list.
+	 *
+	 * @param	size	Size of the list.
+	 * @return			A permutation of the list of indices in the gradient list.
 	 */
-	private ArrayList<Integer> generatePermutationList(int size) {
-		ArrayList<Integer> permutationList = new ArrayList<>();
+	private ArrayList<Integer> generateIndexList(int size) {
+		ArrayList<Integer> indexList = new ArrayList<>();
 
 		for (int i = 0; i < size; i++) {
-			permutationList.add(i % gradientList.size());
+			indexList.add(i % gradientList.size());
 		}
 
-		Collections.shuffle(permutationList);
+		Collections.shuffle(indexList);
 
-		return permutationList;
+		return indexList;
 	}
 
 	/**
 	 * Evaluate the noise value at a point in n-dimensional space.
 	 * The dimension of the input point must equal the dimension of the Noise object.
+	 *
+	 * @param		point				The point to be evaluated.
+	 * @exception	RuntimeException	If the size of point is not equal to the specified dimension of the Noise object.
+	 * @return							The evaluated noise value.
 	 */
 	public double evaluate(ArrayList<Double> point) throws RuntimeException {
 		// Input validation
 		if (point.size() != dimension) {
 			throw new RuntimeException(INVALID_POINT_DIMENSION_ERROR_MESSAGE);
 		}
-
-		// Variables used throughout the method
-		int derp = (int)Math.pow(2,dimension);
 
 		// Step 1: Floor all elements of the input point
 		ArrayList<Integer> flooredPoint = new ArrayList<>();
@@ -126,8 +147,9 @@ public class Noise {
 		}
 
 		// Step 3: Find the gradients assigned to the vertices of the surrounding n-hypercube
+		int twoPower = (int) Math.pow(2, dimension);
 		ArrayList<ArrayList<Double>> gradients = new ArrayList<>();
-		for(int i = 0; i < derp; i++) {
+		for(int i = 0; i < twoPower; i++) {
 			ArrayList<Integer> vertex = new ArrayList<>();
 			for (int j = 0; j < dimension; j++) {
 				vertex.add(flooredPoint.get(j) + (((i >> j) & 1) == 1 ? 1 : 0));
@@ -137,7 +159,7 @@ public class Noise {
 
 		// Step 4: Find the distance vectors
 		ArrayList<ArrayList<Double>> distanceVectors = new ArrayList<>();
-		for (int i = 0; i < derp; i++) {
+		for (int i = 0; i < twoPower; i++) {
 			ArrayList<Double> distanceVector = new ArrayList<>();
 			for (int j = 0; j < dimension; j++) {
 				distanceVector.add(point.get(j) - (((i >> j) & 1) == 1 ? 1 : 0));
@@ -147,53 +169,64 @@ public class Noise {
 
 		// Step 5: Find the noise contributions
 		ArrayList<Double> noiseContributions = new ArrayList<>();
-		for (int i = 0; i < derp; i++) {
+		for (int i = 0; i < twoPower; i++) {
 			noiseContributions.add(dot(gradients.get(i), distanceVectors.get(i)));
 		}
 
 		// Step 6: Blend the noise contributions by iterating over every dimension
-		ArrayList<ArrayList<Double>> merp = new ArrayList<>();
-		ArrayList<Double> gerp = new ArrayList<>();
-		for (int j = 0; j < noiseContributions.size(); j += 2) {
+		ArrayList<ArrayList<Double>> b = new ArrayList<>();
+		ArrayList<Double> interpolation = new ArrayList<>();
+		for (int j = 0; j < twoPower; j += 2) {
 			double blend = blend(relativePoint.get(0));
-			gerp.add(noiseContributions.get(j) * (1 - blend) + noiseContributions.get(j+1) * blend);
+			interpolation.add(noiseContributions.get(j) * (1 - blend) + noiseContributions.get(j+1) * blend);
 		}
-		merp.add(gerp);
+		b.add(interpolation);
 
 		for (int i = 1; i < dimension; i++) {
-			ArrayList<Double> berp = new ArrayList<>();
-			for (int j = 0; j < merp.get(i-1).size(); j += 2) {
+			interpolation = new ArrayList<>();
+			for (int j = 0; j < b.get(i-1).size(); j += 2) {
 				double blend = blend(relativePoint.get(i));
-				berp.add(merp.get(i-1).get(j) * (1 - blend) + merp.get(i-1).get(j+1) * blend);
+				interpolation.add(b.get(i-1).get(j) * (1 - blend) + b.get(i-1).get(j+1) * blend);
 			}
-			merp.add(berp);
+			b.add(interpolation);
 		}
 
 		// Return final noise value
-		return merp.get(dimension-1).get(0);
+		return b.get(dimension-1).get(0);
 
 	}
 
 	/**
-	 * Returns the gradient assigned to the input point on the n-hypercube point lattice.
+	 * Returns the gradient assigned to the input vertex of the n-hypercube point lattice.
+	 *
+	 * @param	vertex	The n-hypercube vertex.
+	 * @return			The gradient assigned to the vertex.
 	 */
-	private ArrayList<Double> getGradient(ArrayList<Integer> point) {
-		return gradientList.get(hash(point, 0));
+	private ArrayList<Double> getGradient(ArrayList<Integer> vertex) {
+		return gradientList.get(hash(vertex, 0));
 	}
 
 	/**
 	 * Recursive hash function used by getGradient().
+	 *
+	 * @param	vertex	The n-hypercube vertex.
+	 * @param	index	The index of the recursion.
+	 * @return			A hashed value in the index list.
 	 */
-	private int hash(ArrayList<Integer> point, int index) {
+	private int hash(ArrayList<Integer> vertex, int index) {
 		if (index == dimension - 1) {
-			return permutationList.get(point.get(index) % permutationList.size());
+			return indexList.get(vertex.get(index) % indexList.size());
 		} else {
-			return permutationList.get((point.get(index) + hash(point, index+1)) % permutationList.size());
+			return indexList.get((vertex.get(index) + hash(vertex, index+1)) % indexList.size());
 		}
 	}
 
 	/**
 	 * Dot (scalar) product of two ArrayList objects.
+	 *
+	 * @param	a	One of the vectors to calculate the dot product from.
+	 * @param	b	The other vector to calculate the dot product from.
+	 * @return		The dot product.
 	 */
 	private double dot(ArrayList<Double> a, ArrayList<Double> b) {
 		double sum = 0;
@@ -206,7 +239,11 @@ public class Noise {
 	}
 
 	/**
-	 * Blending function.
+	 * The blending function used in the dimensional blending of the evaluate() method.
+	 *
+	 * @param	t	An input.
+	 * @return		A blended value.
+	 * @see			Introduced in the article <a href="http://doi.acm.org/10.1145/566570.566636">Improving Noise</a> (Perlin, 2002). DOI: 10.1145/566570.566636.
 	 */
 	private double blend(double t) {
 		return t * t * t * (3 * t * (2 * t - 5) + 10); // 6t^5 - 15t^4 + 10t^3
