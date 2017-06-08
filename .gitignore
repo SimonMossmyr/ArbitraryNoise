@@ -24,3 +24,6 @@ hs_err_pid*
 
 # Javadoc
 *.html
+package-list
+script.js
+stylesheet.css
