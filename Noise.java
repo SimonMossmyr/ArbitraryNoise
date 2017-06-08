@@ -8,22 +8,22 @@ import java.util.Collections;
  *
  * @author 	Simon Mossmyr
  * @version	June 2017
- * @see		<a href="https://github.com/SimonMossmyr/ArbitraryNoise">GitHub repository		</a>
- * @see		<a href="http://doi.acm.org/10.1145/325165.325247"		>An Image Synthesizer	</a> (Perlin, 1985). DOI: 10.1145/325165.325247
+ * @see		<a href="https://github.com/SimonMossmyr/ArbitraryNoise">GitHub repository</a>
+ * @see		<a href="http://doi.acm.org/10.1145/325165.325247">An Image Synthesizer</a> (Perlin, 1985). DOI: 10.1145/325165.325247
  */
 public class Noise {
 
 	// Constant variables.
-	private	static	final	int 	DEFAULT_GRADIENT_LIST_SIZE 				= 256;	
-	private	static	final	int 	DEFAULT_INDEX_LIST_SIZE 				= 256;	
-	private	static	final	int 	DEFAULT_DIMENSION						= 3;
+	private	static	final	int 	DEFAULT_GRADIENT_LIST_SIZE 			= 256;	
+	private	static	final	int 	DEFAULT_INDEX_LIST_SIZE 			= 256;	
+	private	static	final	int 	DEFAULT_DIMENSION				= 3;
 	private			final	String 	INVALID_POINT_DIMENSION_ERROR_MESSAGE 	= "Size of input differs from dimension of Noise object.";
-	private			final	String 	INVALID_DIMENSION_ERROR_MESSAGE 		= "Dimension must be greater than 0.";
+	private			final	String 	INVALID_DIMENSION_ERROR_MESSAGE 	= "Dimension must be greater than 0.";
 
 	// Global variables.
-	private ArrayList<ArrayList<Double>>	gradientList;
-	private ArrayList<Integer> 				indexList;
-	private int 							dimension;
+	private ArrayList<ArrayList<Double>> gradientList;
+	private ArrayList<Integer> indexList;
+	private int dimension;
 
 	/**
 	 * Default class constructor.
@@ -35,8 +35,8 @@ public class Noise {
 	/**
 	 * Class constructor specifying what dimension to use.
 	 *
-	 * @param	dimension 	The dimension to evaluate the noise values in.
-	 *						Defaults to {@value Noise#DEFAULT_DIMENSION}
+	 * @param	dimension	The dimension to evaluate the noise values in.
+	 *				Defaults to {@value Noise#DEFAULT_DIMENSION}
 	 */
 	public Noise(int dimension) {
 		this(dimension, DEFAULT_GRADIENT_LIST_SIZE, DEFAULT_INDEX_LIST_SIZE);
@@ -45,12 +45,12 @@ public class Noise {
 	/**
 	 * Class constructor specifying what dimension, gradient- and permutation list size to use.
 	 *
-	 * @param		dimension 			The dimension to evaluate the noise values in.
-	 *									Defaults to {@value #DEFAULT_DIMENSION} in the other constructors.
-	 * @param 		gradientListSize 	Size of the gradient list used when assigning gradients to the verticies of the surrounding n-hypercube.
-	 *									Defaults to {@value #DEFAULT_GRADIENT_LIST_SIZE} in the other constructors.
-	 * @param 		indexListSize		Size of the index list used when assigning gradients to the verticies of the surrounding n-hypercube.
-	 *									Defaults to {@value #DEFAULT_INDEX_LIST_SIZE} in the other constructors.
+	 * @param	dimension 		The dimension to evaluate the noise values in.
+	 *					Defaults to {@value #DEFAULT_DIMENSION} in the other constructors.
+	 * @param 	gradientListSize	Size of the gradient list used when assigning gradients to the verticies of the surrounding n-hypercube.
+	 *					Defaults to {@value #DEFAULT_GRADIENT_LIST_SIZE} in the other constructors.
+	 * @param 	indexListSize		Size of the index list used when assigning gradients to the verticies of the surrounding n-hypercube.
+	 *					Defaults to {@value #DEFAULT_INDEX_LIST_SIZE} in the other constructors.
 	 * @exception	RuntimeException	If the dimension is less than 1
 	 */
 	public Noise(int dimension, int gradientListSize, int indexListSize) throws RuntimeException {
@@ -67,7 +67,7 @@ public class Noise {
 	 * Generate a list of normalized n-vectors uniformly distributed on the surface of a n-hypersphere.
 	 *
 	 * @param	size	Size of the list.
-	 * @return			A list of normalized n-vectors uniformly distributed on the surface of a n-hypersphere.
+	 * @return		A list of normalized n-vectors uniformly distributed on the surface of a n-hypersphere.
 	 */
 	private ArrayList<ArrayList<Double>> generateGradientList(int size) {
 
@@ -105,7 +105,7 @@ public class Noise {
 	 * Generate a permutation of the list of indices in the gradient list.
 	 *
 	 * @param	size	Size of the list.
-	 * @return			A permutation of the list of indices in the gradient list.
+	 * @return		A permutation of the list of indices in the gradient list.
 	 */
 	private ArrayList<Integer> generateIndexList(int size) {
 		ArrayList<Integer> indexList = new ArrayList<>();
@@ -123,9 +123,9 @@ public class Noise {
 	 * Evaluate the noise value at a point in n-dimensional space.
 	 * The dimension of the input point must equal the dimension of the Noise object.
 	 *
-	 * @param		point				The point to be evaluated.
+	 * @param	point			The point to be evaluated.
 	 * @exception	RuntimeException	If the size of point is not equal to the specified dimension of the Noise object.
-	 * @return							The evaluated noise value.
+	 * @return				The evaluated noise value.
 	 */
 	public double evaluate(ArrayList<Double> point) throws RuntimeException {
 		// Input validation
@@ -199,7 +199,7 @@ public class Noise {
 	 * Returns the gradient assigned to the input vertex of the n-hypercube point lattice.
 	 *
 	 * @param	vertex	The n-hypercube vertex.
-	 * @return			The gradient assigned to the vertex.
+	 * @return		The gradient assigned to the vertex.
 	 */
 	private ArrayList<Double> getGradient(ArrayList<Integer> vertex) {
 		return gradientList.get(hash(vertex, 0));
@@ -210,7 +210,7 @@ public class Noise {
 	 *
 	 * @param	vertex	The n-hypercube vertex.
 	 * @param	index	The index of the recursion.
-	 * @return			A hashed value in the index list.
+	 * @return		A hashed value in the index list.
 	 */
 	private int hash(ArrayList<Integer> vertex, int index) {
 		if (index == dimension - 1) {
