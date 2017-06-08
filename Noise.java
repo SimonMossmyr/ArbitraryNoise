@@ -1,7 +1,6 @@
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Collections;
-import java.util.BitSet;
 
 /**
  * Perlin's unmodified 1985 algorithm to arbitrary dimensions.
